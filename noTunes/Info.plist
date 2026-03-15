@@ -26,6 +26,10 @@
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>LSUIElement</key>
 	<true/>
+	<key>NSAccessibilityUsageDescription</key>
+	<string>noTunes needs Accessibility access to intercept the EarPods media button.</string>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>noTunes needs to control FaceTime to toggle mute.</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2021 Twisted Digital Ltd. All rights reserved.</string>
 	<key>NSMainNibFile</key>
