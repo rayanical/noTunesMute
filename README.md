@@ -95,21 +95,6 @@ Disable replacement:
 defaults delete digital.twisted.noTunes replacement
 ```
 
-## Publishing Releases on GitHub
-
-This repo includes a release workflow at [.github/workflows/release.yml](./.github/workflows/release.yml).
-
-1. Commit and push to GitHub.
-2. Tag and push a version:
-
-```bash
-git tag v3.6
-git push origin v3.6
-```
-
-3. GitHub Actions builds the app, zips it, and attaches it to the GitHub Release.
-4. Share [latest release](https://github.com/rayanical/noTunesMute/releases/latest).
-
 ## License
 
 The code is available under the [MIT License](https://github.com/rayanical/noTunesMute/blob/main/LICENSE).
