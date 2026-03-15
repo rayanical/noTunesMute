@@ -11,13 +11,17 @@ noTunes is a macOS application that will prevent iTunes _or_ Apple Music from la
 
 Simply launch the noTunes app and iTunes/Music will no longer be able to launch. For example, when bluetooth headphones reconnect.
 
-You can toggle the apps functionality via the menu bar icon with a simple left click.
+When noTunes is enabled, the Play/Pause media key is intercepted so Music does not open.
+
+noTunes can also remap Play/Pause to FaceTime mute/unmute while preserving the original iTunes/Music kill fallback.
+
+You can toggle noTunes on/off via the menu bar icon with a simple left click.
 
 ## Installation
 
 ### Direct Download
 
-[noTunes-3.5.zip](https://github.com/tombonez/noTunes/releases/download/v3.5/noTunes-3.5.zip)
+Download the latest build from [Releases](https://github.com/tombonez/noTunes/releases/latest).
 
 ### Homebrew
 
@@ -55,6 +59,13 @@ Left click the menu bar icon to toggle between its active states.
 ### Hide Menu Bar Icon
 
 Right click or control-click the menu bar icon and click `Hide Icon`.
+
+### Toggle FaceTime Mute Remap
+
+Right click or two-finger click the menu bar icon and toggle `FaceTime Mute Remap`.
+
+- Enabled (default): noTunes attempts FaceTime mute/unmute on Play/Pause.
+- Disabled: noTunes still blocks Music/iTunes from Play/Pause, but skips FaceTime mute automation.
 
 ### Restore Menu Bar Icon
 
@@ -101,6 +112,23 @@ The following command will disable the replacement.
 ```bash
 defaults delete digital.twisted.noTunes replacement
 ```
+
+## Publishing Releases on GitHub
+
+This repo includes a release workflow at [.github/workflows/release.yml](./.github/workflows/release.yml).
+
+How to publish a downloadable release:
+
+1. Commit and push your changes to GitHub.
+2. Create and push a version tag:
+
+```bash
+git tag v3.6
+git push origin v3.6
+```
+
+3. GitHub Actions will build `noTunes.app`, zip it, and attach it to a GitHub Release automatically.
+4. Share the `releases/latest` link so users can always get the newest download.
 
 ## Support
 

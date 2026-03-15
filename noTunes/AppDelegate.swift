@@ -17,9 +17,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
     @IBOutlet weak var statusMenu: NSMenu!
+    @IBOutlet weak var faceTimeMuteMenuItem: NSMenuItem!
 
     private let faceTimeBundleID = "com.apple.FaceTime"
     private let faceTimeMuteStrategyDefaultsKey = "faceTimeMuteStrategy"
+    private let faceTimeMuteFeatureEnabledDefaultsKey = "faceTimeMuteFeatureEnabled"
 
     private enum FaceTimeMuteStrategy: String, CaseIterable {
         case buttonDescription
@@ -58,6 +60,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApplication.shared.terminate(self)
     }
 
+    @IBAction func toggleFaceTimeFeatureClicked(_ sender: NSMenuItem) {
+        let isEnabled = isFaceTimeMuteFeatureEnabled()
+        defaults.set(!isEnabled, forKey: faceTimeMuteFeatureEnabledDefaultsKey)
+        updateFaceTimeMuteMenuItemState()
+    }
+
     @objc func statusBarButtonClicked(sender: NSStatusBarButton) {
         let event = NSApp.currentEvent!
 
@@ -91,6 +99,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         self.loadFaceTimeMuteStrategyFromDefaults()
+        self.updateFaceTimeMuteMenuItemState()
         self.checkPermissions()
         self.setupMediaKeyEventTap()
         self.appIsLaunched()
@@ -195,6 +204,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    private func isFaceTimeMuteFeatureEnabled() -> Bool {
+        if defaults.object(forKey: faceTimeMuteFeatureEnabledDefaultsKey) == nil {
+            return true
+        }
+
+        return defaults.bool(forKey: faceTimeMuteFeatureEnabledDefaultsKey)
+    }
+
+    private func updateFaceTimeMuteMenuItemState() {
+        let isEnabled = isFaceTimeMuteFeatureEnabled()
+        faceTimeMuteMenuItem.state = isEnabled ? .on : .off
+    }
+
     private func persistFaceTimeMuteStrategy(_ strategy: FaceTimeMuteStrategy) {
         defaults.set(strategy.rawValue, forKey: faceTimeMuteStrategyDefaultsKey)
         stateAccessQueue.sync {
@@ -286,7 +308,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         if isProtectionEnabled() {
-            requestFaceTimeMuteToggle()
+            if isFaceTimeMuteFeatureEnabled() {
+                requestFaceTimeMuteToggle()
+            }
             return nil
         }
 
