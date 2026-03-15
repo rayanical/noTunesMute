@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import ApplicationServices
 import ServiceManagement
 
 @NSApplicationMain
@@ -41,6 +42,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private let mediaKeyEventSubtypeRawValue: Int16 = 8
     private let mediaKeyDownStateRawValue = 0xA
     private let nxKeyTypePlay = 16
+    private let muteTokenCandidates = ["mute", "unmute"]
 
     private let faceTimeAutomationQueue = DispatchQueue(label: "digital.twisted.noTunes.faceTimeAutomation", qos: .userInitiated)
     private let stateAccessQueue = DispatchQueue(label: "digital.twisted.noTunes.stateAccess", qos: .userInitiated)
@@ -326,8 +328,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func performFaceTimeMuteToggle() -> Bool {
-        guard runningApp(bundleID: faceTimeBundleID) != nil else {
+        guard let runningFaceTime = runningApp(bundleID: faceTimeBundleID) else {
             return false
+        }
+
+        // Fast path: Accessibility-only mute click. This avoids AppleEvents dependency
+        // and is typically much faster than menu/UI AppleScript traversal.
+        if toggleFaceTimeMuteViaAccessibility(pid: runningFaceTime.processIdentifier) {
+            return true
         }
 
         if let cachedStrategy = currentFaceTimeMuteStrategy(),
@@ -340,6 +348,117 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         return performFaceTimeMuteToggle(using: discoveredStrategy)
+    }
+
+    private func toggleFaceTimeMuteViaAccessibility(pid: pid_t) -> Bool {
+        let appElement = AXUIElementCreateApplication(pid)
+
+        let windows = axElementsAttribute(appElement, attribute: kAXWindowsAttribute as CFString)
+        for window in windows {
+            if let muteButton = findMuteButton(in: window, maxDepth: 12),
+               AXUIElementPerformAction(muteButton, kAXPressAction as CFString) == .success {
+                return true
+            }
+        }
+
+        // Some FaceTime layouts expose call controls outside the standard window tree.
+        if let muteButton = findMuteButton(in: appElement, maxDepth: 12),
+           AXUIElementPerformAction(muteButton, kAXPressAction as CFString) == .success {
+            return true
+        }
+
+        return false
+    }
+
+    private func findMuteButton(in root: AXUIElement, maxDepth: Int) -> AXUIElement? {
+        var queue: [(element: AXUIElement, depth: Int)] = [(root, 0)]
+        var index = 0
+        var visitedCount = 0
+        let maxVisited = 1500
+
+        while index < queue.count, visitedCount < maxVisited {
+            let current = queue[index]
+            index += 1
+            visitedCount += 1
+
+            if isLikelyMuteButton(current.element) {
+                return current.element
+            }
+
+            guard current.depth < maxDepth else {
+                continue
+            }
+
+            let children = axElementsAttribute(current.element, attribute: kAXChildrenAttribute as CFString)
+            for child in children {
+                queue.append((child, current.depth + 1))
+            }
+        }
+
+        return nil
+    }
+
+    private func isLikelyMuteButton(_ element: AXUIElement) -> Bool {
+        let role = (axStringAttribute(element, attribute: kAXRoleAttribute as CFString) ?? "").lowercased()
+        guard role == "axbutton" else {
+            return false
+        }
+
+        let searchableText = [
+            axStringAttribute(element, attribute: kAXTitleAttribute as CFString),
+            axStringAttribute(element, attribute: kAXDescriptionAttribute as CFString),
+            axStringAttribute(element, attribute: kAXHelpAttribute as CFString),
+            axStringAttribute(element, attribute: kAXIdentifierAttribute as CFString),
+            axStringAttribute(element, attribute: kAXValueAttribute as CFString)
+        ]
+        .compactMap { $0?.lowercased() }
+        .joined(separator: " ")
+
+        guard !searchableText.isEmpty else {
+            return false
+        }
+
+        return muteTokenCandidates.contains { searchableText.contains($0) }
+    }
+
+    private func axStringAttribute(_ element: AXUIElement, attribute: CFString) -> String? {
+        var value: CFTypeRef?
+        let result = AXUIElementCopyAttributeValue(element, attribute, &value)
+        guard result == .success, let unwrappedValue = value else {
+            return nil
+        }
+
+        if let stringValue = unwrappedValue as? String {
+            return stringValue
+        }
+
+        if let attributedStringValue = unwrappedValue as? NSAttributedString {
+            return attributedStringValue.string
+        }
+
+        return nil
+    }
+
+    private func axElementsAttribute(_ element: AXUIElement, attribute: CFString) -> [AXUIElement] {
+        var values: CFArray?
+        let result = AXUIElementCopyAttributeValues(element, attribute, 0, 500, &values)
+        guard result == .success, let unwrappedValues = values else {
+            return []
+        }
+
+        let count = CFArrayGetCount(unwrappedValues)
+        var elements: [AXUIElement] = []
+        elements.reserveCapacity(count)
+
+        for index in 0..<count {
+            let rawItem = CFArrayGetValueAtIndex(unwrappedValues, index)
+            let typeRef = unsafeBitCast(rawItem, to: CFTypeRef.self)
+            if CFGetTypeID(typeRef) == AXUIElementGetTypeID() {
+                elements.append(unsafeBitCast(rawItem, to: AXUIElement.self))
+            }
+        }
+
+        return elements
     }
 
     private func discoverAndPersistMuteStrategy() -> FaceTimeMuteStrategy? {
