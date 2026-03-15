@@ -1,113 +1,95 @@
-[![noTunes Logo](/screenshots/app-icon.png)](https://github.com/tombonez/noTunes)
+[![noTunesMute Logo](/screenshots/app-icon.png)](https://github.com/rayanical/noTunesMute)
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/tombonez/notunes)](https://github.com/tombonez/noTunes/releases/latest)
-[![GitHub all releases](https://img.shields.io/github/downloads/tombonez/notunes/total)](https://github.com/tombonez/noTunes/releases)
-[![GitHub](https://img.shields.io/github/license/tombonez/notunes)](https://github.com/tombonez/noTunes/blob/master/LICENSE)
-[![GitHub Sponsors](https://img.shields.io/badge/sponsor-tombonez-ec5cc7.svg)](https://github.com/sponsors/tombonez)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/rayanical/noTunesMute)](https://github.com/rayanical/noTunesMute/releases/latest)
+[![GitHub all releases](https://img.shields.io/github/downloads/rayanical/noTunesMute/total)](https://github.com/rayanical/noTunesMute/releases)
+[![GitHub](https://img.shields.io/github/license/rayanical/noTunesMute)](https://github.com/rayanical/noTunesMute/blob/main/LICENSE)
 
-# noTunes
+# noTunesMute
 
-noTunes is a macOS application that will prevent iTunes _or_ Apple Music from launching.
+`noTunesMute` is a macOS menu bar app that blocks Apple Music/iTunes launches and remaps Play/Pause to FaceTime mute/unmute.
 
-Simply launch the noTunes app and iTunes/Music will no longer be able to launch. For example, when bluetooth headphones reconnect.
+## What It Does
 
-When noTunes is enabled, the Play/Pause media key is intercepted so Music does not open.
-
-noTunes can also remap Play/Pause to FaceTime mute/unmute while preserving the original iTunes/Music kill fallback.
-
-You can toggle noTunes on/off via the menu bar icon with a simple left click.
+- Blocks Play/Pause from launching Apple Music/iTunes when protection is enabled.
+- Keeps the original launch-kill safety net for `com.apple.Music` and `com.apple.iTunes`.
+- Remaps Play/Pause to FaceTime mute/unmute with a learned fast strategy cache.
+- Lets you toggle the FaceTime remap feature from the right-click menu.
 
 ## Installation
 
-### Direct Download
-
-Download the latest build from [Releases](https://github.com/tombonez/noTunes/releases/latest).
-
-### Homebrew
-
-```bash
-brew install --cask notunes
-```
+Download the latest build from [Releases](https://github.com/rayanical/noTunesMute/releases/latest).
 
 ## Usage
 
-### Set noTunes to launch at startup
+### Set noTunesMute to Launch at Startup
 
-#### Ventura and later:
+#### Ventura and later
 
-1. Navigate to System Settings
-2. Select General
-3. Select Login Items
-4. Click the + under Open at Login and select noTunes
+1. Open System Settings.
+2. Go to General.
+3. Go to Login Items.
+4. Click `+` under Open at Login and select `noTunesMute`.
 
-#### Before Ventura:
+#### Before Ventura
 
-Navigate to System Preferences -> Users & Groups. Under your user, select "Login Items", click the lock on the bottom left and enter your login password to make changes. Click the plus sign (+) in the main panel and search for noTunes. Select it and click "Add".
+Open System Preferences -> Users & Groups -> Login Items and add `noTunesMute`.
 
-### Toggle noTunes Functionality
+### Toggle Protection
 
-Left click the menu bar icon to toggle between its active states.
+Left click the menu bar icon to toggle protection.
 
-**Enabled (prevents iTunes/Music from opening)**
+**Enabled (blocks iTunes/Music launch)**
 
 ![noTunes Enabled](/screenshots/menubar-enabled.png)
 
-**Disabled (allows iTunes/Music to open)**
+**Disabled (allows iTunes/Music launch)**
 
 ![noTunes Disabled](/screenshots/menubar-disabled.png)
-
-### Hide Menu Bar Icon
-
-Right click or control-click the menu bar icon and click `Hide Icon`.
 
 ### Toggle FaceTime Mute Remap
 
 Right click or two-finger click the menu bar icon and toggle `FaceTime Mute Remap`.
 
-- Enabled (default): noTunes attempts FaceTime mute/unmute on Play/Pause.
-- Disabled: noTunes still blocks Music/iTunes from Play/Pause, but skips FaceTime mute automation.
+- Enabled (default): Play/Pause attempts FaceTime mute/unmute.
+- Disabled: Play/Pause is still blocked from opening Music/iTunes, but FaceTime mute remap is skipped.
+
+### Hide Menu Bar Icon
+
+Right click or control-click the menu bar icon and click `Hide Icon`.
 
 ### Restore Menu Bar Icon
 
-[Quit noTunes](#quit-notunes), run the following command in Terminal and re-open the app:
+Quit the app and run:
 
 ```bash
 defaults delete digital.twisted.noTunes
 ```
 
-### Quit noTunes
+Then reopen `noTunesMute`.
 
-To quit the app either:
+### Quit
 
-**With menu bar icon visible**
+With the menu bar icon visible, right click/control-click and choose `Quit`.
 
-Right click or control-click the menu bar icon and click quit.
-
-**With menu bar icon hidden**
-
-Quit the app via Activity Monitor or run the following command in Terminal:
+With the icon hidden:
 
 ```bash
 osascript -e 'quit app "noTunes"'
 ```
 
-### Set replacement for iTunes / Apple Music
-
-Replace `YOUR_MUSIC_APP` with the name of your music app in the following command.
+### Optional Replacement App (Music/iTunes launch fallback)
 
 ```bash
 defaults write digital.twisted.noTunes replacement /Applications/YOUR_MUSIC_APP.app
 ```
 
-Then `/Applications/YOUR_MUSIC_APP.app` will launch when iTunes/Music attempts to launch.
-
-This can be used to open a website too, for example, YouTube Music.
+Or open a URL:
 
 ```bash
 defaults write digital.twisted.noTunes replacement https://music.youtube.com/
 ```
 
-The following command will disable the replacement.
+Disable replacement:
 
 ```bash
 defaults delete digital.twisted.noTunes replacement
@@ -117,23 +99,17 @@ defaults delete digital.twisted.noTunes replacement
 
 This repo includes a release workflow at [.github/workflows/release.yml](./.github/workflows/release.yml).
 
-How to publish a downloadable release:
-
-1. Commit and push your changes to GitHub.
-2. Create and push a version tag:
+1. Commit and push to GitHub.
+2. Tag and push a version:
 
 ```bash
 git tag v3.6
 git push origin v3.6
 ```
 
-3. GitHub Actions will build `noTunes.app`, zip it, and attach it to a GitHub Release automatically.
-4. Share the `releases/latest` link so users can always get the newest download.
-
-## Support
-
-If you like my work, consider supporting me through [GitHub Sponsors](https://github.com/sponsors/tombonez) 🩷
+3. GitHub Actions builds the app, zips it, and attaches it to the GitHub Release.
+4. Share [latest release](https://github.com/rayanical/noTunesMute/releases/latest).
 
 ## License
 
-The code is available under the [MIT License](https://github.com/tombonez/notunes/blob/master/LICENSE).
+The code is available under the [MIT License](https://github.com/rayanical/noTunesMute/blob/main/LICENSE).
