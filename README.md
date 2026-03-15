@@ -132,31 +132,6 @@ Disable replacement:
 defaults delete digital.twisted.noTunes replacement
 ```
 
-## Release Notes Template
-
-Use this in each GitHub release body (edit version + hashes):
-
-```text
-Unsigned macOS build of noTunesMute <VERSION>.
-
-Features:
-- Blocks Play/Pause from launching Apple Music/iTunes
-- Play/Pause can remap to FaceTime mute/unmute (toggle in right-click menu)
-- Keeps launch-kill fallback for Music/iTunes
-
-Install:
-1. Download and unzip noTunesMute.zip (or noTunesMute-<VERSION>-unsigned.zip)
-2. Move noTunes.app to /Applications
-3. Right click noTunes.app -> Open
-4. Click Open in the prompt
-
-If macOS still blocks launch:
-- Privacy & Security -> Open Anyway
-- or run: xattr -dr com.apple.quarantine /Applications/noTunes.app
-
-SHA256:
-- noTunesMute.zip: <PASTE_SHA256_HERE>
-```
 ## License
 
 The code is available under the [MIT License](https://github.com/rayanical/noTunesMute/blob/main/LICENSE).
