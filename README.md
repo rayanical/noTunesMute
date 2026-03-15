@@ -17,7 +17,44 @@
 
 ## Installation
 
-Download the latest build from [Releases](https://github.com/rayanical/noTunesMute/releases/latest).
+### Option 1: Download App (Easiest)
+
+1. Go to the [Releases](https://github.com/rayanical/noTunesMute/releases) page.
+2. Download `noTunesMute.zip` (or the latest `noTunesMute-...-unsigned.zip` asset).
+3. Unzip and drag `noTunes.app` to your `Applications` folder.
+
+> Important: this app is unsigned (independent developer, no paid Apple Developer account).
+>
+> When opening for the first time:
+> 1. Right click (or Control-click) `noTunes.app`.
+> 2. Select `Open`.
+> 3. Click `Open` in the warning dialog.
+> You only need to do this once.
+
+Troubleshooting: if `Right click -> Open` does not show an `Open` button:
+
+1. Open System Settings.
+2. Go to Privacy & Security.
+3. Scroll to the Security section.
+4. Click `Open Anyway` for `noTunes`.
+5. Enter your password or Touch ID.
+6. Open the app again and confirm `Open`.
+
+Terminal fallback (also works if Gatekeeper marked the app as damaged):
+
+```bash
+xattr -dr com.apple.quarantine /Applications/noTunes.app
+open /Applications/noTunes.app
+```
+
+### Option 2: Build from Source
+
+Requirements: Xcode 14+
+
+1. Clone this repository.
+2. Open `noTunes.xcodeproj` in Xcode.
+3. Select your Team (Personal Team) in Signing & Capabilities.
+4. Press `Cmd + R` to build and run.
 
 ## Usage
 
@@ -95,6 +132,31 @@ Disable replacement:
 defaults delete digital.twisted.noTunes replacement
 ```
 
+## Release Notes Template
+
+Use this in each GitHub release body (edit version + hashes):
+
+```text
+Unsigned macOS build of noTunesMute <VERSION>.
+
+Features:
+- Blocks Play/Pause from launching Apple Music/iTunes
+- Play/Pause can remap to FaceTime mute/unmute (toggle in right-click menu)
+- Keeps launch-kill fallback for Music/iTunes
+
+Install:
+1. Download and unzip noTunesMute.zip (or noTunesMute-<VERSION>-unsigned.zip)
+2. Move noTunes.app to /Applications
+3. Right click noTunes.app -> Open
+4. Click Open in the prompt
+
+If macOS still blocks launch:
+- Privacy & Security -> Open Anyway
+- or run: xattr -dr com.apple.quarantine /Applications/noTunes.app
+
+SHA256:
+- noTunesMute.zip: <PASTE_SHA256_HERE>
+```
 ## License
 
 The code is available under the [MIT License](https://github.com/rayanical/noTunesMute/blob/main/LICENSE).
